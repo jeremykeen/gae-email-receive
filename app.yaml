@@ -1,12 +1,18 @@
-application: image-id
-version: 1
-runtime: python
+runtime: python27
 api_version: 1
+threadsafe: yes
 
-handlers:
-- url: /_ah/mail/.+
-  script: handle_incoming_email.py
-  login: admin
-
+# [START mail_service]
 inbound_services:
 - mail
+
+handlers:
+
+# [START handle_incoming_email]
+- url: /_ah/mail/.+
+  script: handle_incoming_email.app
+  login: admin
+# [END handle_incoming_email]
+- url: /
+  static_files: index.html
+  upload: index.html
