@@ -1,6 +1,0 @@
-for filename, content in attachments:
-    logging.info("filename: " + filename)
-    fileReader = csv.reader(content.split("\n"))
-
-
-    fileReader = csv.reader(content.decode())

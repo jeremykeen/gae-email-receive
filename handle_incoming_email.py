@@ -15,21 +15,36 @@
 # [START log_sender_handler]
 import logging
 import os
-import cloudstorage as gcs
-
-from google.appengine.ext.webapp.mail_handlers import InboundMailHandler
-
-
+import lib.cloudstorage as gcs
 import webapp2
 
-# [start config]
 
-# Configure this environment variable via app.yaml
+from google.appengine.ext.webapp.mail_handlers import InboundMailHandler
+from google.appengine.api import app_identity
 
-CLOUD_STORAGE_BUCKET = os.environ['CLOUD_STORAGE_BUCKET']
-# [end config]
+#[START retries]
+my_default_retry_params = gcs.RetryParams(initial_delay=0.2,
+                                          max_delay=5.0,
+                                          backoff_factor=2,
+                                          max_retry_period=15)
+gcs.set_default_retry_params(my_default_retry_params)
+#[END retries]
+
+
 
 class LogSenderHandler(InboundMailHandler):
+    # [START get_default_bucket]
+    def get(self):
+        bucket_name = os.environ.get('BUCKET_NAME',
+                                     app_identity.get_default_gcs_bucket_name())
+
+        self.response.headers['Content-Type'] = 'text/plain'
+        self.response.write('Demo GCS Application running from Version: '
+                            + os.environ['CURRENT_VERSION_ID'] + '\n')
+        self.response.write('Using bucket name: ' + bucket_name + '\n\n')
+
+    # [END get_default_bucket]
+
     def receive(self, mail_message):
         logging.info("Received a message from: " + mail_message.sender)
 # [END log_sender_handler]
@@ -43,23 +58,17 @@ class LogSenderHandler(InboundMailHandler):
         try:
             if hasattr(mail_message, 'attachments'):
                 for filename, content in mail_message.attachments:
-                    decoded_content = content.decode()
+                    self.response.write('Creating file %s\n' % filename)
 
-                    # Create a Cloud Storage client.
-                    gcs_client = gcs.Client()
-
-                    # Get the bucket that the file will be uploaded to.
-                    bucket = gcs_client.get_bucket(CLOUD_STORAGE_BUCKET)
-
-                    # Create a new blob and upload the file's content.
-                    blob = bucket.blob(filename)
-
-                    blob.upload_from_string(
-                        decoded_content,
-                        decoded_content,
-                        content_type=content_type
-                    )
-                    logging.info("blob url:", blob.public_url)
+                    write_retry_params = gcs.RetryParams(backoff_factor=1.1)
+                    gcs_file = gcs.open(filename,
+                                        'w',
+                                        options={'x-goog-meta-foo': 'foo',
+                                                 'x-goog-meta-bar': 'bar'},
+                                        retry_params=write_retry_params)
+                    gcs_file.write(content.decode())
+                    gcs_file.close()
+                    logging.info("image uploaded to cloud storage")
         except:
             logging.exception("Exception decoding attachments in email from %s" % mail_message.sender)
             # ...
