@@ -32,8 +32,8 @@ class LogSenderHandler(InboundMailHandler):
 
         try:
             if hasattr(mail_message, 'attachments'):
-                for a in mail_message.attachments:
-                    logging.info("Attachment name:", a.filename)
+                for filename, content in mail_message.attachments:
+                    logging.info("Attachment name:", filename)
         except:
             logging.exception("Exception decoding attachments in email from %s" % mail_message.sender)
             # ...
