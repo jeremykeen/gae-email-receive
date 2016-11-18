@@ -15,15 +15,17 @@
 # [START log_sender_handler]
 import logging
 import os
+import cloudstorage as gcs
 
 from google.appengine.ext.webapp.mail_handlers import InboundMailHandler
-from google.cloud import storage
+
 
 import webapp2
 
 # [start config]
 
 # Configure this environment variable via app.yaml
+
 CLOUD_STORAGE_BUCKET = os.environ['CLOUD_STORAGE_BUCKET']
 # [end config]
 
@@ -44,10 +46,10 @@ class LogSenderHandler(InboundMailHandler):
                     decoded_content = content.decode()
 
                     # Create a Cloud Storage client.
-                    gcs = storage.Client()
+                    gcs_client = gcs.Client()
 
                     # Get the bucket that the file will be uploaded to.
-                    bucket = gcs.get_bucket(CLOUD_STORAGE_BUCKET)
+                    bucket = gcs_client.get_bucket(CLOUD_STORAGE_BUCKET)
 
                     # Create a new blob and upload the file's content.
                     blob = bucket.blob(filename)
