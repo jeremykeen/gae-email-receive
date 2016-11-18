@@ -41,10 +41,7 @@ class LogSenderHandler(InboundMailHandler):
         try:
             if hasattr(mail_message, 'attachments'):
                 for filename, content in mail_message.attachments:
-                    decoded_file = content.decode()
-
-                    if not uploaded_file:
-                        return 'No file uploaded.', 400
+                    decoded_content = content.decode()
 
                     # Create a Cloud Storage client.
                     gcs = storage.Client()
@@ -56,7 +53,8 @@ class LogSenderHandler(InboundMailHandler):
                     blob = bucket.blob(filename)
 
                     blob.upload_from_string(
-                        content,
+                        decoded_content,
+                        decoded_content,
                         content_type=content_type
                     )
                     logging.info("blob url:", blob.public_url)
