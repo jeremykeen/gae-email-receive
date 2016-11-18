@@ -21,7 +21,6 @@ import webapp2
 
 class LogSenderHandler(InboundMailHandler):
     def receive(self, mail_message):
-        msg = EmailMessageModel()
         logging.info("Received a message from: " + mail_message.sender)
 # [END log_sender_handler]
 # [START bodies]
@@ -35,7 +34,6 @@ class LogSenderHandler(InboundMailHandler):
             if hasattr(mail_message, 'attachments'):
                 for attachment in mail_message:
                     logging.info("Attachment name:", attachment[0])
-                msg.put()
         except:
             logging.exception("Exception decoding attachments in email from %s" % mail_message.sender)
             # ...
