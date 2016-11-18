@@ -15,7 +15,7 @@
 # [START log_sender_handler]
 import logging
 import os
-import lib.cloudstorage as gcs
+import cloudstorage as gcs
 import webapp2
 
 
