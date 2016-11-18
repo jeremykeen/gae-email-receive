@@ -14,10 +14,20 @@
 
 # [START log_sender_handler]
 import logging
+import os
 
 from google.appengine.ext.webapp.mail_handlers import InboundMailHandler
+from flask import Flask, request
+from google.cloud import storage
+
 import webapp2
 
+# [start config]
+app = Flask(__name__)
+
+# Configure this environment variable via app.yaml
+CLOUD_STORAGE_BUCKET = os.environ['CLOUD_STORAGE_BUCKET']
+# [end config]
 
 class LogSenderHandler(InboundMailHandler):
     def receive(self, mail_message):
@@ -33,7 +43,25 @@ class LogSenderHandler(InboundMailHandler):
         try:
             if hasattr(mail_message, 'attachments'):
                 for filename, content in mail_message.attachments:
-                    logging.info("Attachment name:", filename)
+                    decoded_file = content.decode()
+
+                    if not uploaded_file:
+                        return 'No file uploaded.', 400
+
+                    # Create a Cloud Storage client.
+                    gcs = storage.Client()
+
+                    # Get the bucket that the file will be uploaded to.
+                    bucket = gcs.get_bucket(CLOUD_STORAGE_BUCKET)
+
+                    # Create a new blob and upload the file's content.
+                    blob = bucket.blob(filename)
+
+                    blob.upload_from_string(
+                        content,
+                        content_type=content_type
+                    )
+                    logging.info("blob url:", blob.public_url)
         except:
             logging.exception("Exception decoding attachments in email from %s" % mail_message.sender)
             # ...

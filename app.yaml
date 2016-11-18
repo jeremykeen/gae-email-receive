@@ -16,3 +16,7 @@ handlers:
 - url: /
   static_files: index.html
   upload: index.html
+
+env_variables:
+    GCLOUD_PROJECT: img-recognition
+    CLOUD_STORAGE_BUCKET: detection-images
