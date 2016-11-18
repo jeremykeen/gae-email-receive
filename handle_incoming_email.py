@@ -17,13 +17,11 @@ import logging
 import os
 
 from google.appengine.ext.webapp.mail_handlers import InboundMailHandler
-from flask import Flask, request
 from google.cloud import storage
 
 import webapp2
 
 # [start config]
-app = Flask(__name__)
 
 # Configure this environment variable via app.yaml
 CLOUD_STORAGE_BUCKET = os.environ['CLOUD_STORAGE_BUCKET']
