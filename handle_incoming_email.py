@@ -58,10 +58,12 @@ class LogSenderHandler(InboundMailHandler):
         try:
             if hasattr(mail_message, 'attachments'):
                 for filename, content in mail_message.attachments:
+                    bucket = '/' + bucket_name
+                    file_location = bucket + filename
                     self.response.write('Creating file %s\n' % filename)
 
                     write_retry_params = gcs.RetryParams(backoff_factor=1.1)
-                    gcs_file = gcs.open(filename,
+                    gcs_file = gcs.open(file_location,
                                         'w',
                                         options={'x-goog-meta-foo': 'foo',
                                                  'x-goog-meta-bar': 'bar'},
