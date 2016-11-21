@@ -35,7 +35,7 @@ gcs.set_default_retry_params(my_default_retry_params)
 def write_file(filename, content):
     bucket_name = os.environ.get('BUCKET_NAME',
                                  app_identity.get_default_gcs_bucket_name())
-    bucket = '/' + bucket_name
+    bucket = '/' + bucket_name + '/'
     file_location = bucket + filename
     logging.info("File location: ", file_location)
     write_retry_params = gcs.RetryParams(backoff_factor=1.1)
