@@ -32,7 +32,7 @@ gcs.set_default_retry_params(my_default_retry_params)
 # [END retries]
 
 # [START write_to_default_bucket]
-def write_file(self, filename, content):
+def write_file(filename, content):
     bucket_name = os.environ.get('BUCKET_NAME',
                                  app_identity.get_default_gcs_bucket_name())
     bucket = '/' + bucket_name
