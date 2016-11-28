@@ -17,6 +17,7 @@ import logging
 import os
 import cloudstorage as gcs
 import webapp2
+import time
 
 from google.appengine.ext.webapp.mail_handlers import InboundMailHandler
 from google.appengine.api import app_identity
@@ -36,7 +37,7 @@ def write_file(filename, content):
     bucket_name = os.environ.get('BUCKET_NAME',
                                  app_identity.get_default_gcs_bucket_name())
     bucket = '/' + bucket_name + '/'
-    file_location = bucket + filename
+    file_location = bucket + filename + time.strftime("%d-%m-%Y-%H-%M-%S")
     logging.info("File location: ", file_location)
     write_retry_params = gcs.RetryParams(backoff_factor=1.1)
     gcs_file = gcs.open(file_location,
@@ -46,7 +47,7 @@ def write_file(filename, content):
                         retry_params=write_retry_params)
     gcs_file.write(content.decode())
     gcs_file.close()
-    logging.info("image uploaded to cloud storage")
+    logging.info("Image uploaded to cloud storage")
 
 
 # [END write_to_default_bucket]
