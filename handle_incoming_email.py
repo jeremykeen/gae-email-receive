@@ -37,7 +37,7 @@ def write_file(filename, content):
     bucket_name = os.environ.get('BUCKET_NAME',
                                  app_identity.get_default_gcs_bucket_name())
     bucket = '/' + bucket_name + '/'
-    file_location = bucket + filename + time.strftime("%d-%m-%Y-%H-%M-%S")
+    file_location = bucket + time.strftime("%d-%m-%Y-%H-%M-%S") + filename
     logging.info("File location: ", file_location)
     write_retry_params = gcs.RetryParams(backoff_factor=1.1)
     gcs_file = gcs.open(file_location,
